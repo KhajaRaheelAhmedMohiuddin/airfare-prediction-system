@@ -47,6 +47,16 @@ class BookingAdvisor:
         )
         catalogue["Source"] = catalogue["Source"].astype(str)
         catalogue["Destination"] = catalogue["Destination"].astype(str)
+
+        # Arrival_Time carries the source row's own journey date ("01:00 04 Jun").
+        # Re-priced on some other date that suffix is meaningless, and the features
+        # read only the clock portion, so rows differing solely by it are the same
+        # bookable option at the same predicted fare. Left in, one Banglore -> Delhi
+        # search returned 236 "options" that were really 65, the list padded with
+        # visually identical rows.
+        catalogue["Arrival_Time"] = (
+            catalogue["Arrival_Time"].astype(str).str.split(" ").str[0]
+        )
         self.catalogue = catalogue.drop_duplicates().reset_index(drop=True)
 
     # ------------------------------------------------------------- helpers

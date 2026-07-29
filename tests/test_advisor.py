@@ -47,6 +47,21 @@ def test_real_city_pair_returns_ranked_dates(advisor):
     assert (result["saving_vs_worst_date"] >= 0).all()
 
 
+def test_options_are_distinct_itineraries(advisor):
+    """Regression: rows differing only by the arrival date suffix are the same
+    flight at the same predicted fare, and padded the results list."""
+    options = advisor.cheapest_options("Banglore", "Delhi", "15/06/2019", top_n=15)
+    # Additional_Info is part of the identity: the same departure sold with and
+    # without check-in baggage is two real products at two real prices, so the
+    # displayed table has to show that column for the rows to make sense.
+    key = options[
+        ["Airline", "Dep_Time", "Arrival_Time", "Duration", "Total_Stops",
+         "Route", "Additional_Info"]
+    ]
+    assert not key.duplicated().any()
+    assert not options["Arrival_Time"].str.contains(" ").any()
+
+
 def test_cheapest_options_are_sorted_and_annotated(advisor):
     options = advisor.cheapest_options("Delhi", "Cochin", "15/06/2019", top_n=5)
     assert len(options) <= 5

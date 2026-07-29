@@ -12,6 +12,8 @@ inside a window.
 Built on 10,683 real itineraries (March–June 2019) covering 12 airlines, 5 origin
 cities and 129 routes.
 
+![Cheapest ways to fly a route](docs/screenshots/02_cheapest_options.png)
+
 ---
 
 ## Results
@@ -237,6 +239,29 @@ Interactive app:
 python -m streamlit run app.py
 ```
 
+### The app
+
+Four tabs: price one itinerary, rank the cheapest ways to fly a route, scan a date
+window for the best day, and inspect the model's cross-validated performance.
+
+**Price a flight** — a point estimate plus the spread across the five base learners,
+which widens when the itinerary is unusual for that route:
+
+![Price a flight](docs/screenshots/01_price_a_flight.png)
+
+**Best travel dates** — the cheapest achievable fare on each day in a window, with the
+measured reliability of the recommendation stated underneath rather than assumed:
+
+![Best travel dates](docs/screenshots/03_best_travel_dates.png)
+
+**Model performance** — every model's out-of-fold scores and the fare-band breakdown,
+including the high-fare weakness, shown in the app rather than buried in a report:
+
+![Model performance](docs/screenshots/04_model_performance.png)
+
+Screenshots are regenerated with `python tools/capture_screenshots.py` while the app
+is running.
+
 ### As a library
 
 ```python
@@ -281,7 +306,10 @@ Airfare Prediction System/
 │   ├── predict.py             FarePredictor inference API
 │   ├── advisor.py             BookingAdvisor cost-saving recommendations
 │   └── eda.py                 figures and data profile
-├── tests/                     pytest suite (34 tests)
+├── tools/
+│   └── capture_screenshots.py Playwright capture of the app for these docs
+├── docs/screenshots/          the images above
+├── tests/                     pytest suite (48 tests)
 ├── models/                    airfare_model.joblib + one file per base learner
 └── outputs/
     ├── submission.xlsx        predictions for Test_set.xlsx

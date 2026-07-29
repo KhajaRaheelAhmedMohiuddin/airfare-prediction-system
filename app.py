@@ -157,9 +157,12 @@ with tab_cheap:
             options = advisor.cheapest_options(
                 src2, dst2, date2.strftime("%d/%m/%Y"), top_n=12, max_stops=max_stops
             )
+            # Additional_Info is shown because it is often the only thing separating
+            # two otherwise identical departures priced differently.
             view = options[[
                 "Airline", "Dep_Time", "Arrival_Time", "Duration", "Total_Stops",
-                "predicted_price", "pct_above_cheapest", "saving_vs_market_median",
+                "Additional_Info", "predicted_price", "pct_above_cheapest",
+                "saving_vs_market_median",
             ]].round(0)
             st.dataframe(view, use_container_width=True, hide_index=True)
             top = options.iloc[0]
