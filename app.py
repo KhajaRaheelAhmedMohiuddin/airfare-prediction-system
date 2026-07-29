@@ -14,7 +14,7 @@ import streamlit as st
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from advisor import BookingAdvisor  # noqa: E402
-from config import REPORT_DIR  # noqa: E402
+from config import MODEL_DIR, REPORT_DIR  # noqa: E402
 from data_prep import prepare  # noqa: E402
 from predict import FarePredictor  # noqa: E402
 
@@ -22,19 +22,34 @@ st.set_page_config(page_title="Airfare Prediction System", page_icon=":airplane:
                    layout="wide")
 
 
+def build_version() -> str:
+    """Fingerprint of the code and model behind the cached objects.
+
+    Streamlit keys `cache_resource` on the decorated function's own source, not on
+    the modules it calls into. Without this, editing src/ or retraining leaves a
+    long-running server serving an object built by the *old* code, which surfaces as
+    a confusing AttributeError on a freshly added field rather than as a stale cache.
+    Passing the fingerprint in as an argument makes the cache miss when either moves.
+    """
+    watched = [MODEL_DIR / "airfare_model.joblib", *(Path(__file__).parent / "src").glob("*.py")]
+    stamps = sorted((p.name, int(p.stat().st_mtime)) for p in watched if p.exists())
+    return "|".join(f"{name}:{mtime}" for name, mtime in stamps)
+
+
 @st.cache_resource(show_spinner="Loading the trained ensemble...")
-def load_advisor() -> BookingAdvisor:
+def load_advisor(version: str) -> BookingAdvisor:
     return BookingAdvisor(FarePredictor())
 
 
 @st.cache_data
-def load_reference() -> pd.DataFrame:
+def load_reference(version: str) -> pd.DataFrame:
     train, test = prepare()
     return pd.concat([train.drop(columns=["Price"]), test], ignore_index=True)
 
 
-advisor = load_advisor()
-reference = load_reference()
+_VERSION = build_version()
+advisor = load_advisor(_VERSION)
+reference = load_reference(_VERSION)
 metrics = advisor.predictor.bundle["metrics"]
 DATE_MIN, DATE_MAX = (pd.Timestamp(d) for d in advisor.predictor.date_range)
 
@@ -50,6 +65,16 @@ def check_date(day) -> bool:
         "extrapolation, not a supported estimate."
     )
     return False
+
+
+# Only 12 of the 30 possible city pairs are actually flown in this data. Offering the
+# other 18 in the dropdowns invites a search that can only come back empty.
+PAIRS = advisor.city_pairs()
+ROUTED_SOURCES = sorted(PAIRS["Source"].unique())
+
+
+def destinations_for(source: str) -> list[str]:
+    return sorted(PAIRS.loc[PAIRS["Source"] == source, "Destination"].unique())
 
 st.title("Airfare Prediction System")
 st.caption(
@@ -121,8 +146,8 @@ with tab_price:
 with tab_cheap:
     st.subheader("Cheapest ways to fly this route")
     a, b, c = st.columns(3)
-    src2 = a.selectbox("From ", SOURCES, key="src2")
-    dst2 = b.selectbox("To ", [d for d in DESTS if d != src2], key="dst2")
+    src2 = a.selectbox("From ", ROUTED_SOURCES, key="src2")
+    dst2 = b.selectbox("To ", destinations_for(src2), key="dst2")
     date2 = c.date_input("Travel date", value=pd.Timestamp("2019-06-15"), key="date2")
     max_stops = st.slider("Maximum stops", 0, 3, 2)
 
@@ -162,8 +187,8 @@ with tab_cheap:
 with tab_when:
     st.subheader("When should I fly?")
     a, b, c = st.columns(3)
-    src3 = a.selectbox("From  ", SOURCES, key="src3")
-    dst3 = b.selectbox("To  ", [d for d in DESTS if d != src3], key="dst3")
+    src3 = a.selectbox("From  ", ROUTED_SOURCES, key="src3")
+    dst3 = b.selectbox("To  ", destinations_for(src3), key="dst3")
     start = c.date_input("Window starts", value=pd.Timestamp("2019-06-01"), key="d3")
     window = st.slider("Days to scan", 5, 27, 14)
 

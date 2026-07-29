@@ -15,6 +15,16 @@ from config import REPORT_DIR
 from data_prep import prepare
 from predict import FarePredictor
 
+DATE_SCAN_COLUMNS = [
+    "date",
+    "cheapest_fare",
+    "avg_top5_fare",
+    "best_airline",
+    "best_departure",
+    "stops",
+    "saving_vs_worst_date",
+]
+
 TEMPLATE_COLS = [
     "Airline",
     "Source",
@@ -125,10 +135,15 @@ class BookingAdvisor:
                     "stops": options["Total_Stops"].iloc[0],
                 }
             )
+        if not rows:
+            # No itinerary exists on this city pair (or none survives the filters).
+            # Return the right shape rather than an empty frame, so callers can test
+            # .empty instead of catching a KeyError from sort_values.
+            return pd.DataFrame(columns=DATE_SCAN_COLUMNS)
+
         result = pd.DataFrame(rows).sort_values("cheapest_fare").reset_index(drop=True)
-        if not result.empty:
-            worst = result["cheapest_fare"].max()
-            result["saving_vs_worst_date"] = (worst - result["cheapest_fare"]).round(0)
+        worst = result["cheapest_fare"].max()
+        result["saving_vs_worst_date"] = (worst - result["cheapest_fare"]).round(0)
         return result
 
     def confidence_for_gap(self, gap: float, kind: str = "route") -> str | None:
