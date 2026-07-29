@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# Trained artifacts: ~100 MB of binaries, fully regenerable with
+# `python src/train.py`. Keeping them out of history keeps clones fast.
+models/*.joblib
+models/*.npy
+
+# Local editor/agent tooling (symlinks into this machine's config)
+.agents/
+.claude/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini

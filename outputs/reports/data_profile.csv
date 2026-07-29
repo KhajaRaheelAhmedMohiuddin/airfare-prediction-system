@@ -1,0 +1,12 @@
+train_rows_raw,10683
+train_rows_after_dedup,10463
+duplicate_rows_removed,220
+test_rows,2671
+engineered_features,60
+price_min,1759.0
+price_max,79512.0
+price_mean,9026.642454362993
+price_median,8266.0
+airlines,12
+routes,129
+date_range,01/03/2019 .. 9/06/2019

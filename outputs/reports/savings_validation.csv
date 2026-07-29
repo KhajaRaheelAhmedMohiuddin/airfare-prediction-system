@@ -1,0 +1,3 @@
+comparison,pairs,ranking_accuracy,MAE_on_difference,MAE_on_level,error_inflation
+"same route + date, different itinerary",9084,87.65962131219726,619.1573233056184,409.97868791133396,1.510218315151844
+"same flight, different travel date",15827,85.56896442787641,779.8130536108082,523.1310330919351,1.4906648703323317

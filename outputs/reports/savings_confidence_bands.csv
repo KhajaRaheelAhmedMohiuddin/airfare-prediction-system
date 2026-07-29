@@ -1,0 +1,11 @@
+comparison,predicted_gap,pairs,ranking_accuracy_pct
+"same route + date, different itinerary",under Rs.250,1619,66.5
+"same route + date, different itinerary",Rs.250-500,1118,81.5
+"same route + date, different itinerary","Rs.500-1,000",1697,87.6
+"same route + date, different itinerary","Rs.1,000-2,000",1655,94.9
+"same route + date, different itinerary","over Rs.2,000",2995,97.4
+"same flight, different travel date",under Rs.250,2874,62.1
+"same flight, different travel date",Rs.250-500,2225,75.0
+"same flight, different travel date","Rs.500-1,000",2665,86.5
+"same flight, different travel date","Rs.1,000-2,000",2487,92.0
+"same flight, different travel date","over Rs.2,000",5572,98.7
