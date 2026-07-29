@@ -197,7 +197,10 @@ Install:
 pip install -r requirements.txt
 ```
 
-Train (writes `models/airfare_model.joblib`, metrics, and `outputs/submission.xlsx`):
+Train. **This step is required after cloning** — the trained model files are ~100 MB
+of binaries and are deliberately not committed, so `models/` starts empty. This writes
+them, along with the metrics reports and `outputs/submission.xlsx` (about 10 minutes
+on a laptop):
 
 ```bash
 python src/train.py
