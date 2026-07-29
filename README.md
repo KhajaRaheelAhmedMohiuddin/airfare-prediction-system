@@ -1,5 +1,9 @@
 # Airfare Prediction System
 
+[![tests](https://github.com/KhajaRaheelAhmedMohiuddin/airfare-prediction-system/actions/workflows/tests.yml/badge.svg)](https://github.com/KhajaRaheelAhmedMohiuddin/airfare-prediction-system/actions/workflows/tests.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/)
+
 A machine-learning system that predicts the fare of an Indian domestic flight from its
 itinerary, and then uses those predictions to recommend **cost-effective bookings** —
 the cheapest airline/departure combination on a route, and the cheapest date to travel
@@ -197,6 +201,9 @@ Install:
 pip install -r requirements.txt
 ```
 
+To reproduce the published numbers exactly, install the pinned versions they were
+produced with instead: `pip install -r requirements-lock.txt` (Python 3.14.6).
+
 Train. **This step is required after cloning** — the trained model files are ~100 MB
 of binaries and are deliberately not committed, so `models/` starts empty. This writes
 them, along with the metrics reports and `outputs/submission.xlsx` (about 10 minutes
@@ -288,6 +295,17 @@ Run the tests with:
 ```bash
 python -m pytest tests -q
 ```
+
+They run on every push via GitHub Actions against Python 3.12 and 3.13. The tests
+covering the saved model skip automatically on a fresh clone, where `models/` is empty.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE). The three data workbooks are redistributed here for
+reproducibility; they originate from a public flight-fare dataset and are not covered
+by that licence.
 
 ---
 

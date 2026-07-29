@@ -1,0 +1,53 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run tests
+        # Tests covering the saved model skip automatically when models/ is empty,
+        # which it is on a fresh clone - training takes ~10 minutes and does not
+        # belong in CI. Everything else (features, encoders, metrics, cleaning)
+        # runs against the committed data.
+        run: python -m pytest tests -q
+
+      - name: Smoke-test the feature pipeline end to end
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "src")
+          from data_prep import prepare
+          from features import add_group_statistics, build_features
+
+          train, test = prepare()
+          X_train, X_test = build_features(train), build_features(test)
+          X_train, X_test = add_group_statistics(X_train, X_test)
+          assert list(X_train.columns) == list(X_test.columns)
+          assert not X_train.isnull().any().any()
+          print(f"OK: {X_train.shape[0]} train rows, {X_train.shape[1]} features")
+          PY
